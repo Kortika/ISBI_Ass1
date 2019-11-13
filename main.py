@@ -9,7 +9,7 @@ def main(arguments):
     parser = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('infile', help="Input file", type=str)
+    parser.add_argument('directory', help="Data links directory", type=str)
     parser.add_argument('-o', '--outfile', help="Output file",
                         default=sys.stdout, type=argparse.FileType('w'))
 
