@@ -15,8 +15,9 @@ def main(arguments):
 
     args = parser.parse_args(arguments)
     
-    print(extract_data.readfile(args.infile))
-    
+    extracted_data_dict = extract_data.read_directory(args.directory)
+
+    print(extracted_data_dict)    
     
 
 
