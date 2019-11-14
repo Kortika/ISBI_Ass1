@@ -58,17 +58,17 @@ def calculateRecallPrecision(data, pool_dict):
 
     for engine in engine_query_dict:
         with open("%s.csv.result" % engine, "w+") as output:
-            text =  [] 
+            text =  []
             for query in engine_query_dict[engine]:
                 query_text = ["%s_precision,%s_recall" % (query,query)]
                 query_text += map(lambda x: ",".join(str(z) for z in x), engine_query_dict[engine][query])
-            
-                if len(text) == 0: 
+
+                if len(text) == 0:
                     text = query_text
-                else: 
-                    for i in range(0,len(query_text)): 
+                else:
+                    for i in range(0,len(query_text)):
                         text[i]+= "," + query_text[i]
-            
+
             output.write("\n".join(text))
 
     return engine_query_dict
@@ -121,7 +121,7 @@ def readData(questions, engines, dirpath='./test'):
     commonpools = calculatePool(unusefullData)
 
     calculateRecallPrecision(unusefullData, commonpools)
-    """ 
+    """
 
     for i in range(0, engines):
         for result in unusefullData[questions*i:questions*(i+1)]:

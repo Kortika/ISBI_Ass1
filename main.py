@@ -14,11 +14,11 @@ def main(arguments):
                         default=sys.stdout, type=argparse.FileType('w'))
 
     args = parser.parse_args(arguments)
-    
-    extracted_data_dict = extract_data.read_directory(args.directory)
 
-    print(extracted_data_dict)    
-    
+    extracted_data_dict = extract_data.readDirectory(args.directory)
+
+    print(extracted_data_dict)
+
 
 
 if __name__ == '__main__':
