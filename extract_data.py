@@ -81,20 +81,20 @@ def calculateRecallPrecision(data, pool_dict):
 def interpolate_query(engine_query_dict):
 
     result = dict()
-    std_recall_list = np.arange(0.1, 1.1, 0.1)
-
+    std_recall_list = np.around(np.arange(0.1, 1.1, 0.1),decimals=1)
     for engine in engine_query_dict:
         with open("pyresults/%s_interpolated.csv.result" % engine, "w+") as output:
+            header = list()
+            header.append("std_recall")
             result[engine] = dict()
-
+            write_matrix = list() 
             for query in engine_query_dict[engine]:
-
+                header.append("%s_interpolated" % query)
                 print(engine, query)
-                result[query] = list()
-
+                result[engine][query] = list()
+                query_precision_recalls = [ x if x[1] != "NA" else [0,-1] for x in  engine_query_dict[engine][query]]
                 for std_recall_val in std_recall_list:
 
-                    query_precision_recalls = engine_query_dict[engine][query]
                     filtered_precision = [
                         x[0] for x in query_precision_recalls if x[1] >= std_recall_val]
 
@@ -102,10 +102,23 @@ def interpolate_query(engine_query_dict):
                     if len(filtered_precision) != 0:
                         highest_precision = max(filtered_precision)
 
-                    result[query].append(highest_precision)
+                    result[engine][query].append(highest_precision)
 
+                write_matrix.append(result[engine][query])
+                print("\n".join([str(x) for x in result[engine][query]]))
+            
+            header.append("average")
+            output.write(",".join(header)+"\n")
+            average = np.mean(write_matrix, axis = 0 )
+            write_matrix.append(average)
+            write_matrix.insert(0,std_recall_list)
+            write_matrix = np.transpose(write_matrix)
+                
+            for row in write_matrix:
+                output.write(",".join([str(x) for x in row]))
+                output.write("\n")
 
-
+            result[engine]["average"] = average
 
 
     return result
