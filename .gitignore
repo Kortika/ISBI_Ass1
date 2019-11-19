@@ -1,2 +1,4 @@
-__pycache* 
+__pycache*
 .vscode/
+.Rdata
+.Rhistory

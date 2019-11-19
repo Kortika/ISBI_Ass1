@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 
-def readDirectory(directory="./test"):
+def readDirectory(directory="./data"):
     result = []
 
     for file_name in os.listdir(directory):
@@ -60,7 +60,7 @@ def calculateRecallPrecision(data, pool_dict):
             engine_query_dict[engine][question].append([precision, recall])
 
     for engine in engine_query_dict:
-        with open("%s.csv.result" % engine, "w+") as output:
+        with open("pyresults/%s.csv.result" % engine, "w+") as output:
             text = []
             for query in engine_query_dict[engine]:
                 query_text = ["%s_precision,%s_recall" % (query, query)]
@@ -84,17 +84,17 @@ def interpolate_query(engine_query_dict):
     std_recall_list = np.arange(0.1, 1.1, 0.1)
 
     for engine in engine_query_dict:
-        with open("%s_interpolated.csv.result" % engine, "w+") as output:
+        with open("pyresults/%s_interpolated.csv.result" % engine, "w+") as output:
             result[engine] = dict()
-            
+
             for query in engine_query_dict[engine]:
-               
+
                 print(engine, query)
                 result[query] = list()
-               
+
                 for std_recall_val in std_recall_list:
-                   
-                    query_precision_recalls = engine_query_dict[engine][query]   
+
+                    query_precision_recalls = engine_query_dict[engine][query]
                     filtered_precision = [
                         x[0] for x in query_precision_recalls if x[1] >= std_recall_val]
 
@@ -104,8 +104,8 @@ def interpolate_query(engine_query_dict):
 
                     result[query].append(highest_precision)
 
-            
-            
+
+
 
 
     return result
@@ -131,7 +131,7 @@ def calculatePool(data):
 
     result = dict()
     for question in query_dict.keys():
-        with open("%s.csv.pool" % question, "w+") as output:
+        with open("pyresults/%s.csv.pool" % question, "w+") as output:
             output.write("Link,Engines\n")
             pool_output = []
             result[question] = len(query_dict[question])
