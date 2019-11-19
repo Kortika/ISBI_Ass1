@@ -1,4 +1,5 @@
 import os
+import numpy as np
 
 
 def readDirectory(directory="./test"):
@@ -14,7 +15,7 @@ def readDirectory(directory="./test"):
 def readFile(filename):
     name = filename.split('.csv')[0]
     question, engine = name.split('-')[0].lower(), name.split('-')[1].lower()
-    question =  question.split('/')[-1].lower()
+    question = question.split('/')[-1].lower()
     with open(filename, 'r') as fh:
         fh.readline()  # Ingore first line we don't need col names
         raw_data = fh.readlines()
@@ -22,9 +23,11 @@ def readFile(filename):
     for i in range(0, len(raw_data)):
         line = raw_data[i]
         if not (i+1 == len(raw_data)):
-            data.append((i, line.split(',')[0].strip(), int(line.split(',')[1][:-1])))
+            data.append(
+                (i, line.split(',')[0].strip(), int(line.split(',')[1][:-1])))
         else:
-            data.append((i, line.split(',')[0].strip(), int(line.split(',')[1])))
+            data.append(
+                (i, line.split(',')[0].strip(), int(line.split(',')[1])))
     return (question, engine, data)
 
 
@@ -58,20 +61,54 @@ def calculateRecallPrecision(data, pool_dict):
 
     for engine in engine_query_dict:
         with open("%s.csv.result" % engine, "w+") as output:
-            text =  []
+            text = []
             for query in engine_query_dict[engine]:
-                query_text = ["%s_precision,%s_recall" % (query,query)]
-                query_text += map(lambda x: ",".join(str(z) for z in x), engine_query_dict[engine][query])
+                query_text = ["%s_precision,%s_recall" % (query, query)]
+                query_text += map(lambda x: ",".join(str(z)
+                                                     for z in x), engine_query_dict[engine][query])
 
                 if len(text) == 0:
                     text = query_text
                 else:
-                    for i in range(0,len(query_text)):
-                        text[i]+= "," + query_text[i]
+                    for i in range(0, len(query_text)):
+                        text[i] += "," + query_text[i]
 
             output.write("\n".join(text))
 
     return engine_query_dict
+
+
+def interpolate_query(engine_query_dict):
+
+    result = dict()
+    std_recall_list = np.arange(0.1, 1.1, 0.1)
+
+    for engine in engine_query_dict:
+        with open("%s_interpolated.csv.result" % engine, "w+") as output:
+            result[engine] = dict()
+            
+            for query in engine_query_dict[engine]:
+               
+                print(engine, query)
+                result[query] = list()
+               
+                for std_recall_val in std_recall_list:
+                   
+                    query_precision_recalls = engine_query_dict[engine][query]   
+                    filtered_precision = [
+                        x[0] for x in query_precision_recalls if x[1] >= std_recall_val]
+
+                    highest_precision= 0
+                    if len(filtered_precision) != 0:
+                        highest_precision = max(filtered_precision)
+
+                    result[query].append(highest_precision)
+
+            
+            
+
+
+    return result
 
 
 def calculatePool(data):
@@ -120,28 +157,8 @@ def readData(questions, engines, dirpath='./data'):
 
     commonpools = calculatePool(unusefullData)
 
-    calculateRecallPrecision(unusefullData, commonpools)
-    """
-
-    for i in range(0, engines):
-        for result in unusefullData[questions*i:questions*(i+1)]:
-            (question, engine, data) = result
-            divider = 1
-            revs = 0
-            for (link, relevance) in data:
-                if relevance == 1 and not (link in commonpools[i]):
-                    commonpools[i].append(link)
-                if relevance == 1:
-                    revs += 1
-                print(revs, '/', divider)
-                divider += 1
-            print('\n') """
+    engine_query_dict = calculateRecallPrecision(unusefullData, commonpools)
+    interpolate_query(engine_query_dict)
 
 
-readData(2, 2)  # dirpath='C:/Users/Μαρία/Desktop/ISBI/ISBI_Ass1/data')
-# Printing Test
-'''
-(q, engine, data)=readfile('q4-google.csv')
-for element in data:
-    print(element)
-'''
+readData(2, 2)
