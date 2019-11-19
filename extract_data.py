@@ -13,8 +13,8 @@ def readDirectory(directory="./test"):
 
 def readFile(filename):
     name = filename.split('.csv')[0]
-    question, engine = name.split('-')[0], name.split('-')[1]
-    question =  question.split('/')[-1]
+    question, engine = name.split('-')[0].lower(), name.split('-')[1].lower()
+    question =  question.split('/')[-1].lower()
     with open(filename, 'r') as fh:
         fh.readline()  # Ingore first line we don't need col names
         raw_data = fh.readlines()
@@ -22,9 +22,9 @@ def readFile(filename):
     for i in range(0, len(raw_data)):
         line = raw_data[i]
         if not (i+1 == len(raw_data)):
-            data.append((i, line.split(',')[0], int(line.split(',')[1][:-1])))
+            data.append((i, line.split(',')[0].strip(), int(line.split(',')[1][:-1])))
         else:
-            data.append((i, line.split(',')[0], int(line.split(',')[1])))
+            data.append((i, line.split(',')[0].strip(), int(line.split(',')[1])))
     return (question, engine, data)
 
 
@@ -107,7 +107,7 @@ def calculatePool(data):
     return result
 
 
-def readData(questions, engines, dirpath='./test'):
+def readData(questions, engines, dirpath='./data'):
     filenames = []
     for r, d, f in os.walk(dirpath):
         for file in f:
